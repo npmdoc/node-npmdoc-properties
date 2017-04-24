@@ -1,0 +1,292 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/gagle/node-properties">properties (v1.2.1)</a>
+</h1>
+<h4>.properties parser/stringifier</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.properties">module properties</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.properties.createStringifier">
+            function <span class="apidocSignatureSpan">properties.</span>createStringifier
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.properties.parse">
+            function <span class="apidocSignatureSpan">properties.</span>parse
+            <span class="apidocSignatureSpan">(data, options, cb)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.properties.stringify">
+            function <span class="apidocSignatureSpan">properties.</span>stringify
+            <span class="apidocSignatureSpan">(stringifier, options, cb)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.properties" id="apidoc.module.properties">module properties</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.properties.createStringifier" id="apidoc.element.properties.createStringifier">
+        function <span class="apidocSignatureSpan">properties.</span>createStringifier
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">createStringifier = function (){
+		return new Stringifier ();
+	}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+- [INI](#ini)
+- [Importing files](#include)
+- [Useful options that you should always use](#useful)
+
+#### Functions ####
+
+- [_module_.parse(data[, options][, callback]) : undefined | Object](#parse)
+- [_module_.<span class="apidocCodeKeywordSpan">createStringifier</span>() : Stringifier](#createStringifier)
+- [_module_.stringify(obj[, options][, callback]) : undefined | String](#stringify)
+
+#### Objects ####
+
+- [Stringifier](#Stringifier)
+
+---
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.properties.parse" id="apidoc.element.properties.parse">
+        function <span class="apidocSignatureSpan">properties.</span>parse
+        <span class="apidocSignatureSpan">(data, options, cb)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">parse = function (data, options, cb){
+	if (typeof options === "function"){
+		cb = options;
+		options = {};
+	}
+	
+	options = options || {};
+	var code;
+	
+	if (options.include){
+		if (!cb) throw new Error ("A callback must be passed if the 'include' " +
+				"option is enabled");
+		options._included = {};
+	}
+	
+	options = options || {};
+	options._strict = options.strict &amp;&amp; (options.comments || options.separators);
+	options._vars = options.vars || {};
+	
+	var comments = options.comments || [];
+	if (!Array.isArray (comments)) comments = [comments];
+	var c = {};
+	comments.forEach (function (comment){
+		code = comment.charCodeAt (0);
+		if (comment.length &gt; 1 || code &lt; 33 || code &gt; 126){
+			throw new Error ("The comment token must be a single printable ASCII " +
+					"character");
+		}
+		c[comment] = true;
+	});
+	options._comments = c;
+	
+	var separators = options.separators || [];
+	if (!Array.isArray (separators)) separators = [separators];
+	var s = {};
+	separators.forEach (function (separator){
+		code = separator.charCodeAt (0);
+		if (separator.length &gt; 1 || code &lt; 33 || code &gt; 126){
+			throw new Error ("The separator token must be a single printable ASCII " +
+					"character");
+		}
+		s[separator] = true;
+	});
+	options._separators = s;
+	
+	if (options.path){
+		if (!cb) throw new Error ("A callback must be passed if the 'path' " +
+				"option is enabled");
+		if (options.include){
+			read (data, options, cb);
+		}else{
+			fs.readFile (data, { encoding: "utf8" }, function (error, data){
+				if (error) return cb (error);
+				build (data, options, ".", cb);
+			});
+		}
+	}else{
+		return build (data, options, ".", cb);
+	}
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+- [Namespaces](#namespaces)
+- [INI](#ini)
+- [Importing files](#include)
+- [Useful options that you should always use](#useful)
+
+#### Functions ####
+
+- [_module_.<span class="apidocCodeKeywordSpan">parse</span>(data[, options][, callback]) : undefined | Object](#parse)
+- [_module_.createStringifier() : Stringifier](#createStringifier)
+- [_module_.stringify(obj[, options][, callback]) : undefined | String](#stringify)
+
+#### Objects ####
+
+- [Stringifier](#Stringifier)
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.properties.stringify" id="apidoc.element.properties.stringify">
+        function <span class="apidocSignatureSpan">properties.</span>stringify
+        <span class="apidocSignatureSpan">(stringifier, options, cb)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">stringify = function (stringifier, options, cb){
+	if (typeof options === "function"){
+		cb = options;
+		options = {};
+	}
+	
+	options = options || {};
+	var code;
+	
+	if (options.comment){
+		code = options.comment.charCodeAt (0);
+		if (options.comment.length &gt; 1 || code &lt; 33 || code &gt; 126){
+			throw new Error ("The comment token must be a single printable ASCII " +
+					"character");
+		}
+		options._comment = options.comment;
+	}else{
+		options._comment = "#";
+	}
+	
+	options._comment += " ";
+	
+	if (options.separator){
+		code = options.separator.charCodeAt (0);
+		if (options.separator.length &gt; 1 || code &lt; 33 || code &gt; 126){
+			throw new Error ("The separator token must be a single printable ASCII " +
+					"character");
+		}
+		options._separator = options.separator;
+	}else{
+		options._separator = "=";
+	}
+	
+	options._separator = " " + options._separator + " ";
+	
+	var data = stringify (stringifier, options);
+	
+	if (options.path){
+		if (!cb) throw new TypeError ("A callback must be passed if the data is " +
+				"stored into a file");
+		fs.writeFile (options.path, data, function (error){
+			if (error) return cb (error);
+			cb (null, data);
+		});
+	}else{
+		return data;
+	}
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+- [Importing files](#include)
+- [Useful options that you should always use](#useful)
+
+#### Functions ####
+
+- [_module_.parse(data[, options][, callback]) : undefined | Object](#parse)
+- [_module_.createStringifier() : Stringifier](#createStringifier)
+- [_module_.<span class="apidocCodeKeywordSpan">stringify</span>(obj[, options][, callback]) : undefined | String](#stringify)
+
+#### Objects ####
+
+- [Stringifier](#Stringifier)
+
+---
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
